@@ -81,7 +81,7 @@
         
         <!--https://omg10.com/4/11917324-->
         <div class="ad-placeholder" id="withdrawAdArea">
-            [https://omg10.com/4/11917324]
+            [Rút Tiền Tại Đây]
         </div>
 
         <button class="btn btn-withdraw" id="withdrawBtn" onclick="checkWithdrawal()" disabled>Rút 5,000 BBY</button>
@@ -252,3 +252,160 @@
 
 </body>
 </html>
+<script>
+    const MIN_WITHDRAW = 5000;
+    const HOURLY_CLAIM = 10;
+    const SECRET_SALT = "BATBEY_SECURE_2026_KEY_#99";
+    
+    // ĐƯỜNG LINK QUẢNG CÁO CỦA BẠN (Dùng link Direct Link / Smartlink)
+    const AD_LINK = "https://omg10.com/4/11917324"; 
+
+    let userBalance = 0;
+    let lastClaimTime = 0;
+    let lastClickTime = 0;
+
+    function generateHash(val, time) {
+        let str = val.toString() + "|" + time.toString() + "|" + SECRET_SALT;
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            let char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0; 
+        }
+        return hash.toString(16);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        let storedBalance = localStorage.getItem('batbey_enc_bal');
+        let storedTime = localStorage.getItem('batbey_last_claim');
+        let storedHash = localStorage.getItem('batbey_sig');
+
+        if (storedBalance !== null && storedHash !== null) {
+            let parsedBal = parseFloat(atob(storedBalance));
+            let expectedHash = generateHash(parsedBal, storedTime || 0);
+
+            if (storedHash === expectedHash) {
+                userBalance = parsedBal;
+                lastClaimTime = parseInt(storedTime || 0);
+            } else {
+                userBalance = 0;
+                lastClaimTime = 0;
+                localStorage.clear();
+            }
+        }
+
+        let userId = localStorage.getItem('batbey_userid');
+        if(!userId) {
+            userId = 'BBY' + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem('batbey_userid', userId);
+        }
+        document.getElementById('refLink').value = window.location.origin + window.location.pathname + '?ref=' + userId;
+
+        // HIỂN THỊ NÚT XEM QUẢNG CÁO Ở KHUNG RÚT TIỀN
+        document.getElementById('withdrawAdArea').innerHTML = `
+            <a href="${AD_LINK}" target="_blank" style="color: #00d2d3; font-weight: bold; text-decoration: underline;">
+                👉 Bấm vào đây để xem quảng cáo hỗ trợ Gas trước khi rút
+            </a>
+        `;
+
+        updateDisplay();
+    });
+
+    function updateDisplay() {
+        document.getElementById('balance').innerText = userBalance.toFixed(2);
+        checkWithdrawStatus();
+
+        let encBalance = btoa(userBalance.toString());
+        let hashSig = generateHash(userBalance, lastClaimTime);
+
+        localStorage.setItem('batbey_enc_bal', encBalance);
+        localStorage.setItem('batbey_last_claim', lastClaimTime);
+        localStorage.setItem('batbey_sig', hashSig);
+    }
+
+    // HÀM ĐÀO COIN: BẤM NÚT SẼ TỰ ĐỘNG BẬT QUẢNG CÁO TRƯỚC
+    function secureClaimCoin() {
+        const now = new Date().getTime();
+
+        if (now - lastClickTime < 1000) {
+            alert("🚫 CẢNH BÁO: Thao tác quá nhanh!");
+            lastClickTime = now;
+            return;
+        }
+        lastClickTime = now;
+
+        const oneHour = 60 * 60 * 1000;
+        if (now - lastClaimTime < oneHour) {
+            const minutesLeft = Math.ceil((oneHour - (now - lastClaimTime)) / (60 * 1000));
+            alert(`Bạn đã đào rồi! Vui lòng quay lại sau ${minutesLeft} phút nữa.`);
+            return;
+        }
+
+        // BƯỚC 1: TỰ ĐỘNG MỞ TAB QUẢNG CÁO
+        window.open(AD_LINK, '_blank');
+
+        // BƯỚC 2: YÊU CẦU XÁC MINH CÂU HỎI
+        setTimeout(() => {
+            let num1 = Math.floor(Math.random() * 10) + 1;
+            let num2 = Math.floor(Math.random() * 10) + 1;
+            let answer = prompt(`[XÁC MINH CHỐNG BOT]\nNhập kết quả phép tính để nhận 10 BBY: ${num1} + ${num2} = ?`);
+
+            if (parseInt(answer) === (num1 + num2)) {
+                userBalance += HOURLY_CLAIM;
+                lastClaimTime = now;
+                updateDisplay();
+                alert(`Thành công! Bạn nhận được +${HOURLY_CLAIM} BATBEY COIN.`);
+            } else {
+                alert("❌ Xác minh không chính xác! Vui lòng thử lại.");
+            }
+        }, 500);
+    }
+
+    function checkWithdrawStatus() {
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const notif = document.getElementById('notif');
+
+        if(userBalance >= MIN_WITHDRAW) {
+            withdrawBtn.disabled = false;
+            notif.style.display = 'none';
+        } else {
+            withdrawBtn.disabled = true;
+            notif.style.display = 'block';
+        }
+    }
+
+    function copyRefLink() {
+        const refInput = document.getElementById('refLink');
+        refInput.select();
+        refInput.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(refInput.value);
+        alert("Đã sao chép link giới thiệu!");
+    }
+
+    function checkWithdrawal() {
+        if(userBalance >= MIN_WITHDRAW) {
+            let method = prompt("Chọn phương thức rút (Gõ 1 hoặc 2):\n1. Ngân hàng (ATM / Banking)\n2. Ví Điện Tử / Crypto (MoMo, ZaloPay, MetaMask, Trust Wallet)");
+
+            if (method === "1") {
+                let bankName = prompt("Nhập tên Ngân hàng:");
+                let bankAccount = prompt("Nhập Số tài khoản Ngân hàng:");
+                let accountName = prompt("Nhập Tên chủ tài khoản:");
+
+                if(bankName && bankAccount && accountName) {
+                    alert(`✅ Yêu cầu rút 5,000 BBY thành công!\n\nThông tin: NH ${bankName} - STK: ${bankAccount} (${accountName}).\n\n⏳ Hệ thống đang kiểm duyệt. Tiền sẽ vào tài khoản trong vòng 5 - 10 ngày làm việc.`);
+                    userBalance -= MIN_WITHDRAW;
+                    updateDisplay();
+                }
+            } else if (method === "2") {
+                let walletType = prompt("Nhập tên Ví:");
+                let walletAddress = prompt("Nhập SĐT Ví hoặc Địa chỉ ví:");
+
+                if(walletType && walletAddress) {
+                    alert(`✅ Yêu cầu rút 5,000 BBY thành công!\n\nThông tin: Ví ${walletType} (${walletAddress}).\n\n⏳ Tiền sẽ vào ví trong 5 - 10 ngày làm việc.`);
+                    userBalance -= MIN_WITHDRAW;
+                    updateDisplay();
+                }
+            }
+        }
+    }
+</script>
