@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATBEY COIN - Secure Web Mining</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0e14; color: #fff; text-align: center; margin: 0; padding: 0; user-select: none; }
+        .container { padding: 20px; max-width: 450px; margin: 0 auto; }
+        
+        /* Logo BATBEY phát sáng */
+        .logo-container { margin-top: 15px; margin-bottom: 10px; }
+        .logo-img { 
+            width: 130px; 
+            height: 130px; 
+            border-radius: 50%; 
+            border: 3px solid #2e9cca; 
+            box-shadow: 0 0 25px rgba(46, 156, 202, 0.6); 
+            object-fit: cover; 
+        }
+
+        .brand-title { font-size: 22px; font-weight: bold; letter-spacing: 1px; color: #00d2d3; margin-bottom: 15px; }
+
+        /* Khung hiển thị Số dư */
+        .balance-card { background: linear-gradient(135deg, #1f4068, #162447); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid #2e9cca; position: relative; }
+        .balance-card h2 { margin: 0; font-size: 14px; text-transform: uppercase; color: #a4b0be; }
+        .balance-text { font-size: 40px; font-weight: bold; margin: 10px 0; color: #fff; text-shadow: 0 0 10px rgba(46, 156, 202, 0.7); }
+        .symbol { font-size: 16px; color: #2e9cca; }
+        .security-badge { font-size: 10px; color: #10ac84; background: rgba(16, 172, 132, 0.15); padding: 3px 8px; border-radius: 10px; border: 1px solid #10ac84; display: inline-block; margin-top: 5px; }
+
+        /* Nút Đào & Rút tiền */
+        .btn { background: linear-gradient(90deg, #00d2d3, #2e9cca); color: white; border: none; padding: 15px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(0,210,211,0.3); margin-bottom: 10px; text-transform: uppercase; }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-withdraw { background: linear-gradient(90deg, #ff9f43, #ee5253); box-shadow: 0 4px 10px rgba(238,82,83,0.3); } 
+        .btn-withdraw:disabled { background: #576574; box-shadow: none; cursor: not-allowed; opacity: 0.6; }
+
+        /* Khung nhiệm vụ, Referral & Quảng cáo */
+        .section-box { background-color: #1b1b2f; border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px dashed #2e9cca; text-align: left; }
+        .section-box h3 { margin: 0 0 10px 0; font-size: 15px; color: #00d2d3; text-align: center; }
+        .section-box p { color: #c8d6e5; font-size: 13px; margin: 0 0 10px 0; }
+
+        .ref-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #2e9cca; background-color: #0b0e14; color: #fff; box-sizing: border-box; font-size: 12px; margin-bottom: 8px; }
+        .btn-ref { padding: 10px; font-size: 13px; margin-bottom: 0; }
+
+        .notif { margin-top: 10px; color: #ff6b6b; font-size: 13px; font-weight: bold; display: none; text-align: center; }
+        .ad-placeholder { background-color: #222f3e; border-radius: 10px; padding: 12px; color: #8395a7; font-style: italic; margin-bottom: 12px; border: 1px solid #10ac84; font-size: 12px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- LOGO BATBEY COIN -->
+    <div class="logo-container">
+        <img src="logo.png" alt="BATBEY COIN" class="logo-img">
+    </div>
+    <div class="brand-title">BATBEY COIN MINING</div>
+
+    <!-- SỐ DƯ TÀI KHOẢN -->
+    <div class="balance-card">
+        <h2>SỐ DƯ TÀI KHOẢN</h2>
+        <p class="balance-text"><span id="balance">0.00</span> <span class="symbol">BBY</span></p>
+        <div class="security-badge">🛡️ Anti-Hack System Active</div>
+    </div>
+
+    <!-- NÚT ĐÀO COIN (1 GIỜ / LẦN) -->
+    <button class="btn" id="claimBtn" onclick="secureClaimCoin()">Đào 10 BBY (1 Giờ / Lần)</button>
+
+    <!-- HỆ THỐNG GIỚI THIỆU (REFERRAL 20%) -->
+    <div class="section-box">
+        <h3>🎁 THƯỞNG HOA HỒNG 20%</h3>
+        <p>Chia sẻ link của bạn để nhận 20% tổng số coin cấp dưới đào được:</p>
+        <input type="text" id="refLink" class="ref-input" readonly value="https://batbeycoin.vercel.app/?ref=USER123">
+        <button class="btn btn-ref" onclick="copyRefLink()">Sao Chép Link Giới Thiệu</button>
+    </div>
+
+    <!-- KHU VỰC RÚT TIỀN & QUẢNG CÁO -->
+    <div class="section-box">
+        <h3 style="color: #ff9f43;">💳 RÚT TIỀN VỀ VÍ / NGÂN HÀNG</h3>
+        <p>Mức rút tối thiểu: <b>5,000 BBY</b>. Vui lòng xem quảng cáo bên dưới để xác nhận lệnh rút:</p>
+        
+        <!--https://omg10.com/4/11917324-->
+        <div class="ad-placeholder" id="withdrawAdArea">
+            [https://omg10.com/4/11917324]
+        </div>
+
+        <button class="btn btn-withdraw" id="withdrawBtn" onclick="checkWithdrawal()" disabled>Rút 5,000 BBY</button>
+        <div class="notif" id="notif">Cần tối thiểu 5,000 BBY để mở khóa rút tiền!</div>
+    </div>
+</div>
+
+<script>
+    const MIN_WITHDRAW = 5000;
+    const HOURLY_CLAIM = 10;
+    const SECRET_SALT = "BATBEY_SECURE_2026_KEY_#99"; // Khóa mã hóa bảo vệ số dư
+
+    let userBalance = 0;
+    let lastClaimTime = 0;
+    let lastClickTime = 0;
+
+    // 1. TẠO CHỮ KÝ HASH BẢO VỆ CHỐNG SỬA LOCALSTORAGE
+    function generateHash(val, time) {
+        let str = val.toString() + "|" + time.toString() + "|" + SECRET_SALT;
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            let char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0; 
+        }
+        return hash.toString(16);
+    }
+
+    // 2. KHỞI TẠO VÀ XÁC THỰC DỮ LIỆU
+    document.addEventListener("DOMContentLoaded", function() {
+        let storedBalance = localStorage.getItem('batbey_enc_bal');
+        let storedTime = localStorage.getItem('batbey_last_claim');
+        let storedHash = localStorage.getItem('batbey_sig');
+
+        if (storedBalance !== null && storedHash !== null) {
+            let parsedBal = parseFloat(atob(storedBalance));
+            let expectedHash = generateHash(parsedBal, storedTime || 0);
+
+            if (storedHash === expectedHash) {
+                userBalance = parsedBal;
+                lastClaimTime = parseInt(storedTime || 0);
+            } else {
+                alert("⚠️ PHÁT HIỆN GIAN LẬN: Số dư đã bị can thiệp! Hệ thống sẽ đặt lại tài khoản.");
+                userBalance = 0;
+                lastClaimTime = 0;
+                localStorage.clear();
+            }
+        }
+
+        // Tạo User ID Giới thiệu
+        let userId = localStorage.getItem('batbey_userid');
+        if(!userId) {
+            userId = 'BBY' + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem('batbey_userid', userId);
+        }
+        document.getElementById('refLink').value = window.location.origin + window.location.pathname + '?ref=' + userId;
+
+        updateDisplay();
+    });
+
+    // 3. CẬP NHẬT GIAO DIỆN VÀ LƯU DỮ LIỆU ĐÃ MÃ HÓA
+    function updateDisplay() {
+        document.getElementById('balance').innerText = userBalance.toFixed(2);
+        checkWithdrawStatus();
+
+        let encBalance = btoa(userBalance.toString());
+        let hashSig = generateHash(userBalance, lastClaimTime);
+
+        localStorage.setItem('batbey_enc_bal', encBalance);
+        localStorage.setItem('batbey_last_claim', lastClaimTime);
+        localStorage.setItem('batbey_sig', hashSig);
+    }
+
+    // 4. HÀM ĐÀO COIN (1 GIỜ/LẦN) + ANTI-BOT & CAPTCHA
+    function secureClaimCoin() {
+        const now = new Date().getTime();
+
+        // Anti Auto-Clicker
+        if (now - lastClickTime < 1000) {
+            alert("🚫 CẢNH BÁO: Thao tác quá nhanh! Vui lòng không dùng Auto-Clicker.");
+            lastClickTime = now;
+            return;
+        }
+        lastClickTime = now;
+
+        // Đếm ngược 1 giờ (3.600.000 ms)
+        const oneHour = 60 * 60 * 1000;
+        if (now - lastClaimTime < oneHour) {
+            const minutesLeft = Math.ceil((oneHour - (now - lastClaimTime)) / (60 * 1000));
+            alert(`Bạn đã đào rồi! Vui lòng quay lại sau ${minutesLeft} phút nữa.`);
+            return;
+        }
+
+        // Math Captcha chống Bot
+        let num1 = Math.floor(Math.random() * 10) + 1;
+        let num2 = Math.floor(Math.random() * 10) + 1;
+        let answer = prompt(`[XÁC MINH CHỐNG BOT]\nNhập kết quả phép tính để nhận 10 BBY: ${num1} + ${num2} = ?`);
+
+        if (parseInt(answer) === (num1 + num2)) {
+            userBalance += HOURLY_CLAIM;
+            lastClaimTime = now;
+            updateDisplay();
+            alert(`Thành công! Bạn nhận được +${HOURLY_CLAIM} BATBEY COIN.`);
+        } else {
+            alert("❌ Xác minh không chính xác! Vui lòng thử lại.");
+        }
+    }
+
+    // 5. KIỂM TRA MỞ KHÓA RÚT TIỀN
+    function checkWithdrawStatus() {
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const notif = document.getElementById('notif');
+
+        if(userBalance >= MIN_WITHDRAW) {
+            withdrawBtn.disabled = false;
+            notif.style.display = 'none';
+        } else {
+            withdrawBtn.disabled = true;
+            notif.style.display = 'block';
+        }
+    }
+
+    // 6. SAO CHÉP LINK MỜI
+    function copyRefLink() {
+        const refInput = document.getElementById('refLink');
+        refInput.select();
+        refInput.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(refInput.value);
+        alert("Đã sao chép link giới thiệu! Mời bạn bè đăng ký để nhận 20% hoa hồng.");
+    }
+
+    // 7. XỬ LÝ RÚT TIỀN (THÔNG BÁO TỰ ĐỘNG 5-10 NGÀY)
+    function checkWithdrawal() {
+        if(userBalance >= MIN_WITHDRAW) {
+            let method = prompt("Chọn phương thức rút (Gõ 1 hoặc 2):\n1. Ngân hàng (ATM / Banking)\n2. Ví Điện Tử / Crypto (MoMo, ZaloPay, MetaMask, Trust Wallet)");
+
+            if (method === "1") {
+                let bankName = prompt("Nhập tên Ngân hàng (Ví dụ: MB Bank, Vietcombank):");
+                let bankAccount = prompt("Nhập Số tài khoản Ngân hàng:");
+                let accountName = prompt("Nhập Tên chủ tài khoản (Viết hoa không dấu):");
+
+                if(bankName && bankAccount && accountName) {
+                    alert(`✅ Yêu cầu rút 5,000 BBY thành công!\n\nThông tin: NH ${bankName} - STK: ${bankAccount} (${accountName}).\n\n⏳ Hệ thống đang kiểm duyệt lượt xem quảng cáo. Tiền thưởng sẽ được chuyển vào tài khoản Ngân hàng của bạn trong vòng 5 - 10 ngày làm việc.`);
+                    userBalance -= MIN_WITHDRAW;
+                    updateDisplay();
+                } else {
+                    alert("Vui lòng nhập đầy đủ thông tin ngân hàng!");
+                }
+
+            } else if (method === "2") {
+                let walletType = prompt("Nhập tên Ví (Ví dụ: MoMo, ZaloPay, MetaMask, Trust Wallet):");
+                let walletAddress = prompt("Nhập SĐT Ví hoặc Địa chỉ ví Crypto (0x...):");
+
+                if(walletType && walletAddress) {
+                    alert(`✅ Yêu cầu rút 5,000 BBY thành công!\n\nThông tin: Ví ${walletType} (${walletAddress}).\n\n⏳ Hệ thống đang kiểm duyệt lượt xem quảng cáo. Tiền thưởng sẽ được chuyển vào Ví của bạn trong vòng 5 - 10 ngày làm việc.`);
+                    userBalance -= MIN_WITHDRAW;
+                    updateDisplay();
+                } else {
+                    alert("Vui lòng nhập đầy đủ thông tin ví!");
+                }
+
+            } else {
+                alert("Lựa chọn không hợp lệ. Vui lòng thử lại!");
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
